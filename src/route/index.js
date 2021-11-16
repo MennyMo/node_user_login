@@ -1,9 +1,9 @@
 const express = require('express')
 const router = express.Router()
-const { validateUser, getWeatherReport, verifyToken, checkUser } = require('../middleware')
-const { createNewUser, loginUser } = require('../controller/index')
+const { validateUser, getWeatherReport, verifyToken, checkUser, generateResetPasswordToken } = require('../middleware')
+const { createNewUser, loginUser, forgotPassword, resetPassword } = require('../controller/index')
 const { createIncidentReport, fetchAllIncidents, fetchUserIncidents } = require('../controller/incident')
-const { createUserSchema, loginUserSchema, createIncidentSchema } = require('../validation')
+const { createUserSchema, loginUserSchema, createIncidentSchema, forgotPasswordSchema, resetPasswordSchema } = require('../validation')
 
 
 router.post(
@@ -22,7 +22,7 @@ router.post(
 
 router.post(
     '/api/user-incident-report',
-    verifyToken,
+    verifyToken('logged-in'),
     validateUser(createIncidentSchema, 'body'),
     getWeatherReport,
     createIncidentReport
@@ -35,8 +35,23 @@ router.get(
 
 router.get(
     '/api/user-incident-report',
-    verifyToken,
+    verifyToken('logged-in'),
     fetchUserIncidents
+)
+
+router.post(
+    '/api/forgot-password',
+    validateUser(forgotPasswordSchema, 'body'),
+    generateResetPasswordToken, 
+    forgotPassword 
+)
+
+router.post(
+    '/api/reset-password',
+    validateUser(resetPasswordSchema, 'body'),
+    verifyToken('reset-password'),
+    resetPassword
+        
 )
 
 module.exports = router

@@ -1,5 +1,5 @@
 const { getUser, fetchWeather } = require('../services')
-const { validateToken } = require("../utils")
+const { validateToken, generateToken, generateResetToken} = require("../utils")
 
 const checkUser = (type) => async(req, res, next) => {
     try {
@@ -7,7 +7,7 @@ const checkUser = (type) => async(req, res, next) => {
         const [ user ] = await getUser(email)
         if(type === 'login'){
            if(!user) {
-            return res.status(401).json({
+            return res.status(400).json({
                 status: 'fail',
                 message: 'Invalid credentials',
                 data: []
@@ -18,7 +18,7 @@ const checkUser = (type) => async(req, res, next) => {
            }
         }
         if (user) {
-            return res.status(401).json({
+            return res.status(400).json({
                 status: 'fail',
                 message: 'User already exists. Log in',
                 data: []
@@ -32,17 +32,22 @@ const checkUser = (type) => async(req, res, next) => {
 
 
 // verify token
-const verifyToken = async(req, res, next) => {
+const verifyToken = (type) => async(req, res, next) => {
     try {
-        var token = req.headers['x-access-token']
-    
+        let token
+        if(type === 'logged-in') {
+            token = req.headers['x-access-token']
+        } else {
+            token = req.query.token
+        }
+
         if (!token)
             return res.status(403).json({
                 status: 'fail',
                 message: 'No token provided.'
             })
         
-        const tokenValidated = await validateToken(token)
+        const tokenValidated = await validateToken(token, type)
         if(tokenValidated.message) {
             return res.status(403).json({
                 status: 'fail',
@@ -114,9 +119,41 @@ const getWeatherReport = async(req, res, next) => {
         next(err)
     }
 }
+
+const generateResetPasswordToken = async(req, res, next) => {
+    try {
+        const { body: {email} } = req;
+        const [user] = await getUser(email)
+    
+        if (!user) 
+            return res.status(404).json({
+                status: 'failed',
+                message: 'User not found'
+            })
+
+        const token = await generateResetToken(user)
+        req.token = token
+        next()
+    }
+    catch (err) {
+        next(err)
+    }
+}
+
+const resetPassword = async(req, res, next) => {
+    try {
+        
+    } catch (error) {
+
+        
+    }
+}
+
 module.exports = {
     validateUser,
     getWeatherReport,
     verifyToken,
-    checkUser
+    checkUser,
+    generateResetPasswordToken,
+    
 }

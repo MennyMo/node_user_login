@@ -25,9 +25,21 @@ const generateToken = async user => {
     return token
 }
 
-const validateToken = async token => {
+const generateResetToken = async user => {
+    const token = jwt.sign(
+        { id: user.id, email: user.email },
+        process.env.RESET_TOKEN_KEY,
+        {
+        expiresIn: "1h",
+        }
+    )
+    return token
+}
+
+
+const validateToken = async (token, type) => {
     try{
-        return jwt.verify(token, process.env.TOKEN_KEY)
+        return jwt.verify(token, type === 'logged-in' ? process.env.TOKEN_KEY: process.env.RESET_TOKEN_KEY)
     } catch(error){
             return error
     }   
@@ -37,5 +49,6 @@ module.exports = {
     hashPassword,
     comparePassword,
     generateToken,
-    validateToken
+    validateToken,
+    generateResetToken
 }
