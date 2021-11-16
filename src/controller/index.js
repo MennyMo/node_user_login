@@ -19,7 +19,7 @@ const createNewUser = async(req, res, next) => {
 
 const loginUser = async(req, res, next) => {
     try {
-        const { user, password } = req
+        const { user, body:{password} } = req
        
         const validated = await validatePassword(user, password)
 

@@ -8,6 +8,7 @@ const hashPassword = async password => {
     return encryptedPassword
 }
 
+
 const comparePassword = async(password, userPassword) => {
     const isValid = await bcrypt.compare(password, userPassword)
     return isValid
@@ -25,7 +26,11 @@ const generateToken = async user => {
 }
 
 const validateToken = async token => {
-    return jwt.verify(token, process.env.TOKEN_KEY)
+    try{
+        return jwt.verify(token, process.env.TOKEN_KEY)
+    } catch(error){
+            return error
+    }   
 }
 
 module.exports = {

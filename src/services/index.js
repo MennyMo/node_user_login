@@ -12,6 +12,7 @@ const createUser = async(body) => {
 }
 
 const validatePassword = async(user, password) => {
+    console.log(user);
     const isValid = await comparePassword(password, user.password)
 
     if (isValid) {
@@ -36,7 +37,7 @@ const fetchWeather = async(city, country) => {
 
 // Creating report
 const createReport = (req) => {
-    const { body, id, weather } = req
+    const { body, user: {id} , weather } = req
     const { incident_description, city, country } = body
 
     const payload = [ id, incident_description, city, country, weather ]
